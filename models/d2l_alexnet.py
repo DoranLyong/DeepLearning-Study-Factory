@@ -10,8 +10,6 @@ class d2l_AlexNet(nn.Module):
     def __init__(self,  num_classes=10,loss='softmax' ):
         super(d2l_AlexNet,self).__init__() 
 
-        self.loss = loss
-
         self.model = nn.Sequential(
                     # 11x11 Conv, s=4, #96 
                     nn.Conv2d(in_channels=1, out_channels=96, kernel_size=11, stride=4, padding=1 ),

@@ -7,9 +7,6 @@ import torch.nn as nn
 import torch.nn.functional as F 
 
 
-
-
-
 class d2l_ResNet(nn.Module):
     def __init__(self, num_classes=10):
         super(d2l_ResNet, self).__init__() 

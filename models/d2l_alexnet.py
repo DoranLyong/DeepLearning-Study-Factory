@@ -7,7 +7,7 @@ import torch.nn as nn
 
 
 class d2l_AlexNet(nn.Module):
-    def __init__(self,  num_classes=10,loss='softmax' ):
+    def __init__(self,  num_classes=10):
         super(d2l_AlexNet,self).__init__() 
 
         self.model = nn.Sequential(

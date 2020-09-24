@@ -159,3 +159,4 @@ for layer in net.model:
     X=layer(X)
     print(layer.__class__.__name__,'Output shape:\t',X.shape)
 """
+x, x_sim1, x_sim2, x_sim3, x_sim4 = net()

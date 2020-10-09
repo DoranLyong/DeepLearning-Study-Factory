@@ -1,3 +1,5 @@
+# code=<utf-8>
+
 import cv2
 import matplotlib.pyplot as plt
 import matplotlib.ticker as plticker
@@ -98,14 +100,9 @@ def draw_anchor_gt_overlaps(
     plt.show()
 
 
-def draw_pos_assigned_bboxes(
-    image_shape,
-    grid_size,
-    gt_bboxes_list,
-    pos_bboxes,
-    pos_pred_bboxes=None,
-    figsize=(20, 20),
-):
+def draw_pos_assigned_bboxes( image_shape, grid_size, gt_bboxes_list,
+                                pos_bboxes, pos_pred_bboxes=None, figsize=(20, 20),
+                            ):
     """Draw positive, negative bboxes.
 
     Args:
@@ -122,15 +119,16 @@ def draw_pos_assigned_bboxes(
         ax = prepare_base_figure(grid_size, figsize)
 
         for gt_bbox in gt_bboxes_list:
-            x1, y1, x2, y2 = gt_bbox
+            x1, y1, x2, y2 = map(int, gt_bbox)  # cv2.rectangle() 에러 있음 
+                                                # 전부 float -> int 형대로 바꿔주면 해결; https://github.com/opencv/opencv/issues/15465
             gt_coord = [(x2 + x1) // 2, (y2 + y1) // 2, (x2 - x1) // 2, (y2 - y1) // 2]
             cv2.rectangle(background_image, (x1, y1), (x2, y2), (0, 0, 255), 1)
 
-        x1, y1, x2, y2 = pos_bboxes[i]
+        x1, y1, x2, y2 = map(int, pos_bboxes[i])
         anchor_coord = [(x2 + x1) // 2, (y2 + y1) // 2, (x2 - x1) // 2, (y2 - y1) // 2]
         cv2.rectangle(background_image, (x1, y1), (x2, y2), (0, 255, 0), 1)
 
-        x1, y1, x2, y2 = pos_pred_bboxes[i]
+        x1, y1, x2, y2 = map(int, pos_pred_bboxes[i])
         pred_coord = [(x2 + x1) // 2, (y2 + y1) // 2, (x2 - x1) // 2, (y2 - y1) // 2]
         cv2.rectangle(background_image, (x1, y1), (x2, y2), (255, 0, 0), 1)
 

@@ -7,6 +7,7 @@ import torch.nn as nn
 from torch.nn import init 
 import torch.nn.functional as F
 
+from torchvision import models 
 
 
 def weights_init_kaiming(m):
@@ -80,12 +81,58 @@ class ClassBlock(nn.Module):
 
 
 
-net = ClassBlock(input_dim=2048, class_num=751, droprate=0.5)
+
+# Define the ResNet50-based Model
+class ft_net(nn.Module):
+
+    def __init__(self, class_num, droprate=0.5, stride=2):
+        super(ft_net, self).__init__()
+        model_ft = models.resnet50(pretrained=True)
+        # avg pooling to global pooling
+        if stride == 1:
+            model_ft.layer4[0].downsample[0].stride = (1,1)
+            model_ft.layer4[0].conv2.stride = (1,1)
+        model_ft.avgpool = nn.AdaptiveAvgPool2d((1,1))
+        self.model = model_ft
+        self.classifier = ClassBlock(2048, class_num, droprate)
+
+    def forward(self, x):
+        x = self.model.conv1(x)
+        x = self.model.bn1(x)
+        x = self.model.relu(x)
+        x = self.model.maxpool(x)
+        x = self.model.layer1(x)
+        x = self.model.layer2(x)
+        x = self.model.layer3(x)
+        x = self.model.layer4(x)
+        x = self.model.avgpool(x)
+        x = x.view(x.size(0), x.size(1))
+        x = self.classifier(x)
+        return x
 
 
 
-X = torch.randn(size=( 20,  2048))   # batch=20, vector_dim=2048 
+### Test ### 
+output_layer = ClassBlock(input_dim=2048, class_num=751, droprate=0.5)
 
-y = net(X)     
-print(y.shape)    # output shape == [20, 751]
+X = torch.randn(size=( 20,  2048))   # (Batch, vector_dim) = (20, 2048) 
+y1 = output_layer(X)     
+print("classifier layer output: ", y1.shape)    # output shape == [20, 751]
+
+
+
+### 
+net = ft_net(class_num = 751) 
+
+X1 = torch.randn(size=(20, 3, 640, 480)) # (B, C, H, W) = (20, 3 , 640, 480) 
+out = net(X1) 
+
+print("output shape: ", out.shape)   # (Batch, class) = (20, 751)
+
+
+
+
+
+
+
 

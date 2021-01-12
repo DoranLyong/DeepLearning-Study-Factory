@@ -2,6 +2,7 @@
 """
 (ref) https://youtu.be/x9JiIFvlUwk
 (ref) https://github.com/aladdinpersson/Machine-Learning-Collection/blob/master/ML/Pytorch/Basics/pytorch_tensorbasics.py
+(ref) https://jovian.ai/aakashns/01-pytorch-basics
 
 * Run this code on VScode (it can be run with Jupyter notebook conntection)
 * Run each code cell with pressing 'shift + Enter'
@@ -202,10 +203,146 @@ print(x[:, 0].shape)  # shape[10]
 
 
 # %% For example: Want to access third example in the batch and the first ten features 
-print( x[2, 0:10].shape ) # shape[10]
+print( x[2, 0:10].shape ) # shape[10] ; 0:10 -> [0, 1, 2, ..., 9]
 
 
 
-# %% 특정 위치에 값 할당하기(assign certain elements)
+# %% 특정 위치에 할당하기(assign certain elements)
 x[0, 0] = 100 
 
+
+# %% 좀더 기교있는 인덱싱 (Facny indexing)
+x = torch.arange(10)
+indices = [2, 5, 8]
+print( x[indices] )   # x[indices] = [2, 5, 8]
+
+
+x = torch.rand( (3,5) )
+rows = torch.tensor([1, 0])
+cols = torch.tensor([4, 0])
+print(x[rows, cols])  # Gets second row fourth column (1,4) and first row first column (0, 0) 
+
+
+# %% 좀더 고급진 인덱싱 (More advanced indexing)
+x = torch.arange(10) #
+
+print( x[ (x<2) | (x>8)] )  # 조건부 인덱싱; will be [0, 1, 9] ; 2보다 작고 8보다 큰 요소들 인덱싱 
+print( x[x.remainder(2) == 0] ) # will be [0, 2, 4, 6, 8] ; 2로 나누었을 때 나머지가 0인 요소들 인덱싱 
+
+
+
+
+# %% 기타 유용한 연산 (useful operations)
+print( 
+        torch.where( x>5, x, x*2)    # all values x > 5 yield x, else x*2
+)                                    # 5보다 크면 x, 작으면 x*2 로 바꿔라 
+
+
+x = torch.tensor([0, 0, 1, 2, 2, 3, 4]).unique()  # x = [0, 1, 2, 3, 4] 
+
+
+print(
+    x.ndimension()  # The number of dimensions, in this case 1. if x.shape is 5x5x5 ndim would be 3
+)                   # 텐서 x의 차원축 개수 반환 
+
+
+x = torch.arange(10)
+print(
+    x.numel()   # The number of elements in x (in this case it's trivial because it's just a vector)
+                # 텐서 x의 요소 개수 세기 (the number of elements = numel )
+)  
+
+
+
+# ============================================================= #
+#                        Tensor Reshaping                       #
+# ============================================================= #
+# %% 04. 텐서 형태 바꾸기 
+x = torch.arange(9) 
+
+x_3x3 = x.view(3, 3) 
+x_3x3 = x.reshape(3, 3)
+
+"""
+view() 와 reshape() 의 기능은 비슷하다. 
+차이점은 view 는 기존 텐서에서 연속적인 메모리에 있는 요소들의 형태만 바꿔서 가져오는거고 
+reshape 은 새로 복사해서 형태를 바꾸는 것? 
+
+(ref; contigious vs non-contigious) https://discuss.pytorch.org/t/contigious-vs-non-contigious-tensor/30107/2
+(ref) https://sanghyu.tistory.com/3
+(ref) https://subinium.github.io/pytorch-Tensor-Variable/
+"""
+
+
+# %% Contiguous examples 
+"""
+즉, 텐서 x 의 요소들이 contiguous 하지 않다면(=연속적인 메모리에 없다면), view() 는 에러가 발생한다. 
+"""
+x = torch.arange(9)   # 요소들이 연속적인 메모리에 위치한다 
+
+x_3x3 = x.view(3,3)   # 텐서 x의 요소들은 contiguous 하니까 view() 사용할 수 있다. 
+
+y = x_3x3.t() # transpose 하면서 contiguous 했던 요소들의 위치가 뒤바뀐다; non-contiguous. (왜냐하면 배열도 본질적으로는 연속된 메모리로 표현하니까)
+
+# print( y.view(9) )  # Error; 결국 y는 non-contiguous 하기 때문에 view() 를 사용할 수 없다. 
+
+print( y.contiguous().view(9) ) # 텐서 y를 contiguous 하게 바꿔줘야만 view()를 사용할 수 있다. 
+
+
+
+# %% 이어 붙이기 (concatenate)
+x1 = torch.rand( (2, 5) )
+x2 = torch.rand( (2, 5) )
+
+print( torch.cat((x1, x2), dim=0).shape)  # Shape: 4x5  (dim0 축 방향으로 이어붙인다)
+print( torch.cat((x1, x2), dim=1).shape)  # Shape: 2x10 (dim1 축 방향으로 이어붙인다)
+
+
+# %% 텐서 펼치기 (unroll) - 텐서를 벡터로 만든다 
+z = x1.view(-1)  # -1 will unroll everything 
+print(z.shape)   # torch.Size([10]) 
+
+
+
+# %% 특정 부분 빼고 전부 펼치기
+batch = 64 
+x = torch.rand( (batch, 2, 5) )  # 64 x 2 x 5 
+
+z = x.view(batch, -1)   # 0번째 축은 batch 길이 만큼 두고 나머지는 펼친다(unroll)
+print( z.shape )   # torch.Size([64, 10])
+
+
+# %% 요수 축 위치 바꾸기 (permute)
+z = x.permute(0, 2, 1) # 64 x 2 x 5  ->  64 x 5 x 2
+
+
+# %% 텐서 자르기/분리하기; 덩어리 짓기 (chunk)
+"""
+텐서를 특정 축 방향으로 등분하기 (덩어리 짓기)
+(ref) https://sanghyu.tistory.com/6
+"""
+
+x = torch.rand( (64, 6, 10) )  # 64x6x10
+
+z = torch.chunk(x, chunks=2, dim=1)  # 텐서 x를 2 덩어리(chunk) 짓는데, dim1 축 방향으로 덩어리 지어라 
+
+print(z[0].shape)  # 64x3x10
+print(z[1].shape)  # 64x3x10
+
+
+"""
+두 개로 덩어리 지어졌다 (chunk=2)
+"""
+
+
+# %% 길이 1만큼 차원축 추가하기 (unsqueeze)
+x = torch.arange(10)  # (10,)
+
+print(x.unsqueeze(0).shape) # 0축 방향으로 길이 1만큼 차원을 추가한다; (10,) -> (1, 10) shape 
+print(x.unsqueeze(1).shape) # 0축 방향으로 길이 1만큼 차원을 추가한다; (10,) -> (10, 1) shape 
+
+
+# %% 반대로 길이 1인 차원축 짜부수기 (squeeze)
+x = torch.arange(10).unsqueeze(0).unsqueeze(1)   # 1x1x10 shape 
+
+z = x.squeeze(1)  # dim1 축 방향으로 길이가 1이면 짜부수기 -> 1x10 shape 

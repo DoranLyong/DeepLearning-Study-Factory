@@ -189,3 +189,23 @@ z = torch.all(x)  # 텐서의 모든 요소들이 True 여야만 True 반환
 # ============================================================= #
 # %% 03. 텐서 인덱싱 
 batch_size = 10 
+features = 25 
+x = torch.rand( (batch_size, features) )
+
+
+
+# %% Get the first examples features 
+print(x[0].shape)  # this is the same as doing x[0, :]
+
+# %% Get the first feature for all examples 
+print(x[:, 0].shape)  # shape[10]
+
+
+# %% For example: Want to access third example in the batch and the first ten features 
+print( x[2, 0:10].shape ) # shape[10]
+
+
+
+# %% 특정 위치에 값 할당하기(assign certain elements)
+x[0, 0] = 100 
+

@@ -312,7 +312,7 @@ z = x.view(batch, -1)   # 0번째 축은 batch 길이 만큼 두고 나머지는
 print( z.shape )   # torch.Size([64, 10])
 
 
-# %% 요수 축 위치 바꾸기 (permute)
+# %% 요소 축 위치 바꾸기 (permute)
 z = x.permute(0, 2, 1) # 64 x 2 x 5  ->  64 x 5 x 2
 
 

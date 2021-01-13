@@ -220,7 +220,6 @@ def check_accuracy(loader, model):
         for x, y in loader:
             x = x.to(device=device)
             y = y.to(device=device)
-            x = x.reshape(x.shape[0], -1)
             
             scores = model(x)
             _, predictions = scores.max(1)
@@ -233,3 +232,5 @@ def check_accuracy(loader, model):
 # %%
 check_accuracy(train_loader, model)
 check_accuracy(test_loader, model)
+
+# %%

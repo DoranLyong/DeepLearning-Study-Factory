@@ -179,7 +179,7 @@ for epoch in range(num_epochs):
         
         
         # forward
-        scores = model(data)   # 모델이 예측한 값 
+        scores = model(data)   # 모델이 예측한 수치 
         loss = criterion(scores, targets)
         
         # backward

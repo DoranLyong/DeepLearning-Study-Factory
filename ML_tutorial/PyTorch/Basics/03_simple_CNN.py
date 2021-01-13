@@ -1,8 +1,8 @@
 # coding=<utf-8> 
 """
-(ref) https://youtu.be/Jy4wM2X21u0
-(ref) https://github.com/aladdinpersson/Machine-Learning-Collection/blob/804c45e83b27c59defb12f0ea5117de30fe25289/ML/Pytorch/Basics/pytorch_simple_fullynet.py#L26-L35
-(ref) https://jovian.ai/learn/deep-learning-with-pytorch-zero-to-gans/lesson/lesson-1-pytorch-basics-and-linear-regression
+(ref) https://youtu.be/wnK3uWv_WkU
+(ref) https://github.com/aladdinpersson/Machine-Learning-Collection/blob/157a5f458f272a513eb6b4a19d6613aec32dc21c/ML/Pytorch/Basics/pytorch_simple_CNN.py#L25-L41
+(ref) https://jovian.ai/learn/deep-learning-with-pytorch-zero-to-gans/lesson/lesson-4-image-classification-with-cnn
 
 * Run this code on VScode (it can be run with Jupyter notebook conntection)
 * Run each code cell with pressing 'shift + Enter'
@@ -10,9 +10,9 @@
 """
 
 """
-Fully-connected(FC) 네트워크를 구성하고 MNIST 데이터셋으로 학습하기 
+CNN 네트워크를 구성하고 MNIST 데이터셋으로 학습하기 
 
-1. Create a fully-connected network 
+1. Create CNN model  
 
 2. Set device 
 
@@ -44,46 +44,50 @@ import torchvision.transforms as transforms  # Transformations we can perform on
 
 
 # ================================================================= #
-#                1. Create a fully-connected network                #
+#                           1. Create a CNN                         #
 # ================================================================= #
-# %% 01. 심플한 FCnet 생성하기 
-class NN(nn.Module): 
-    def __init__(self, input_size: int, num_classes: int):
-        super(NN, self).__init__()   # (ref) https://dojang.io/mod/page/view.php?id=2386
+# %% 01. 심플한 CNN 생성하기 
+class CNN(nn.Module):
+    def __init__(self, in_channels = 1, num_classes = 10):
+        super(CNN, self).__init__()
         """
         여기서는 학습이 가능한 계층을 설계한다. 
         예를 들어 nn 패키지를 활용하는 것들 
 
         (ex) nn.conv2d, nn.Linear, etc.
         """
-        self.fc1 = nn.Linear(input_size, 50) 
-        self.fc2 = nn.Linear(50, num_classes)
 
+        self.conv1 = nn.Conv2d(in_channels=1, out_channels=8, kernel_size=(3,3), stride=(1,1), padding=(1,1))
+        self.pool = nn.MaxPool2d(kernel_size=(2,2), stride = (2,2))
+        self.conv2 = nn.Conv2d(in_channels=8, out_channels=16, kernel_size=(3,3), stride=(1,1), padding=(1,1))
+        self.fc1 = nn.Linear(16*7*7, num_classes)
 
-
-    def forward(self, x):   # 순전파 모듈 
+    
+    def forward(self, x):
         """
         여기서는 학습 파라미터가 없는 계층을 설계한다. 
         예를 들어 nn.functional 패키지를 활용한 것들 
 
         (ex) F.relu, F.max_pool2d, etc.
         """
-
-        x = F.relu(self.fc1(x))
-        x = self.fc2(x)
-        return x 
-
-
+                
+        x = F.relu(self.conv1(x))
+        x = self.pool(x)
+        x = F.relu(self.conv2(x))
+        x = self.pool(x)
+        x = x.reshape(x.shape[0], -1)  # 펼치기 (unroll)
+        x = self.fc1(x)
+        
+        return x
 
 """
 모델 구조가 잘 만들어 졌는지 확인 
 
-model = NN(784 , 10)        # MNIST 이미지 크기는 28x28 = 784, 클래스 개수 = 10
-x = torch.randn(64, 784)    # Batch = 64, 특징벡터 길이 = 784
-print(model(x).shape)
-
+model = CNN()        
+x = torch.randn(64, 1, 28, 28)    # Batch = 64, 이미지 크기= 28 x 28
+print(model(x).shape)   # torch.Size([64, 10])
 """
-
+        
 
 # ================================================================= #
 #                         2. Set device                             #
@@ -97,11 +101,11 @@ device = torch.device( 'cuda' if torch.cuda.is_available() else 'cpu')
 #                       3. Hyperparameters                          #
 # ================================================================= #
 # %% 03. 하이퍼파라미터 설정 
-input_size = 784 
+in_channel = 1
 num_classes = 10 
-learning_rate = 0.001 
-batch_size = 64 
-num_epochs = 1 
+learning_rate = 0.001
+batch_size = 64
+num_epochs = 5
 
 
 # ================================================================= #
@@ -137,7 +141,7 @@ test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=Tr
 #                      5.  Initialize network                       #
 # ================================================================= #
 # %% 05. 모델 초기화
-model = NN(input_size=input_size, num_classes=num_classes).to(device)
+model = CNN().to(device)
 
 
 
@@ -146,7 +150,7 @@ model = NN(input_size=input_size, num_classes=num_classes).to(device)
 # ================================================================= #
 # %% 06. 손실 함수와 최적화 알고리즘 정의 
 criterion = nn.CrossEntropyLoss()   
-optimizer = optim.Adam( model.parameters(), lr=learning_rate )  # 네트워크의 모든 파라미터를 전달한다 
+optimizer = optim.Adam( model.parameters(), lr=learning_rate)  # 네트워크의 모든 파라미터를 전달한다 
 
 
 
@@ -173,10 +177,6 @@ for epoch in range(num_epochs):
         data = data.to(device=device)  # 미니 베치 데이터를 device 에 로드 
         targets = targets.to(device=device)  # 레이블 for supervised learning 
         
-        # Get to correct shape
-#        print(data.shape)    # torch.Size([64, 1, 28, 28])
-        data = data.reshape(data.shape[0], -1)  # 네트워크 입력에 맞게 (28, 28) -> (784,) 로 펼치기(unroll)
-                                                # torch.Size([64, 784])
         
         # forward
         scores = model(data)   # 모델이 예측한 값 

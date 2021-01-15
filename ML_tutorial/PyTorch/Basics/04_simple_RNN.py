@@ -3,6 +3,7 @@
 (ref) https://youtu.be/Gl2WXLIMvKA
 (ref) https://github.com/aladdinpersson/Machine-Learning-Collection/blob/master/ML/Pytorch/Basics/pytorch_rnn_gru_lstm.py
 (ref) https://youtu.be/BwmddtPFWtA
+(ref) https://youtu.be/WEV61GmmPrk
 
 * Run this code on VScode (it can be run with Jupyter notebook conntection)
 * Run each code cell with pressing 'shift + Enter'
@@ -79,7 +80,33 @@ class RNN(nn.Module):
 
         # Decode the hidden state of the last time step
         out = self.fc(out)
-        return out        
+        return out     
+
+
+
+# Recurrent neural network with LSTM (many-to-one)
+class RNN_LSTM(nn.Module):
+    def __init__(self, input_size, hidden_size, num_layers, num_classes):
+        super(RNN_LSTM, self).__init__()
+        self.hidden_size = hidden_size
+        self.num_layers = num_layers
+        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
+        self.fc = nn.Linear(hidden_size * sequence_length, num_classes)
+
+    def forward(self, x):
+        # Set initial hidden and cell states
+        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
+        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
+
+        # Forward propagate LSTM
+        out, _ = self.lstm(
+            x, (h0, c0)
+        )  # out: tensor of shape (batch_size, seq_length, hidden_size)
+        out = out.reshape(out.shape[0], -1)
+
+        # Decode the hidden state of the last time step
+        out = self.fc(out)
+        return out           
 
 """
 모델 구조가 잘 만들어 졌는지 확인 
@@ -94,7 +121,8 @@ print(model(x).shape)   # torch.Size([64, 10])
 #                         2. Set device                             #
 # ================================================================= #
 # %% 02. 프로세스 장비 설정 
-device = torch.device( 'cuda' if torch.cuda.is_available() else 'cpu')
+gpu_no = 0  # gpu_number 
+device = torch.device( f'cuda:{gpu_no}' if torch.cuda.is_available() else 'cpu')
 
 
 
@@ -152,7 +180,8 @@ test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=Tr
 #                      5.  Initialize network                       #
 # ================================================================= #
 # %% 05. 모델 초기화
-model = CNN().to(device)
+model = RNN_LSTM(input_size, hidden_size, num_layers, num_classes).to(device)
+#model = RNN(input_size, hidden_size, num_layers, num_classes).to(device)
 
 
 
@@ -185,7 +214,7 @@ for epoch in range(num_epochs):
 
     for batch_idx, (data, targets) in enumerate(train_loader): # 미니배치 별로 iteration 
         # Get data to cuda if possible
-        data = data.to(device=device)  # 미니 베치 데이터를 device 에 로드 
+        data = data.to(device=device).squeeze(1)  # 미니 베치 데이터를 device 에 로드 
         targets = targets.to(device=device)  # 레이블 for supervised learning 
         
         
@@ -225,11 +254,11 @@ def check_accuracy(loader, model):
     num_correct = 0
     num_samples = 0
 
-    model.eval()  
+    model.eval()  # Set model to eval
     
     with torch.no_grad():
         for x, y in loader:
-            x = x.to(device=device)
+            x = x.to(device=device).squeeze(1)
             y = y.to(device=device)
             
             scores = model(x)

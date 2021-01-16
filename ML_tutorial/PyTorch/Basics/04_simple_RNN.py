@@ -43,13 +43,21 @@ import torchvision.transforms as transforms  # Transformations we can perform on
 
 
 
+# ================================================================= #
+#                         2. Set device                             #
+# ================================================================= #
+# %% 02. 프로세스 장비 설정 
+gpu_no = 0  # gpu_number 
+device = torch.device( f'cuda:{gpu_no}' if torch.cuda.is_available() else 'cpu')
+
+
 
 # ================================================================= #
 #                           1. Create a RNN                         #
 # ================================================================= #
 # %% 01. 심플한 RNN 생성하기 
 class RNN(nn.Module):
-    def __init__(self, input_size, hidden_size, num_layers, num_classes):
+    def __init__(self, input_size, sequence_length,hidden_size, num_layers, num_classes):
         super(RNN, self).__init__()
         """
         여기서는 학습이 가능한 계층을 설계한다. 
@@ -81,12 +89,33 @@ class RNN(nn.Module):
         # Decode the hidden state of the last time step
         out = self.fc(out)
         return out     
+        
 
+# Recurrent neural network with GRU (many-to-one)
+class RNN_GRU(nn.Module):
+    def __init__(self, input_size, sequence_length, hidden_size, num_layers, num_classes):
+        super(RNN_GRU, self).__init__()
+        self.hidden_size = hidden_size
+        self.num_layers = num_layers
+        self.gru = nn.GRU(input_size, hidden_size, num_layers, batch_first=True)
+        self.fc = nn.Linear(hidden_size * sequence_length, num_classes)
+
+    def forward(self, x):
+        # Set initial hidden and cell states
+        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
+
+        # Forward propagate LSTM
+        out, _ = self.gru(x, h0)
+        out = out.reshape(out.shape[0], -1)
+
+        # Decode the hidden state of the last time step
+        out = self.fc(out)
+        return out           
 
 
 # Recurrent neural network with LSTM (many-to-one)
 class RNN_LSTM(nn.Module):
-    def __init__(self, input_size, hidden_size, num_layers, num_classes):
+    def __init__(self, input_size, sequence_length,hidden_size, num_layers, num_classes):
         super(RNN_LSTM, self).__init__()
         self.hidden_size = hidden_size
         self.num_layers = num_layers
@@ -108,41 +137,37 @@ class RNN_LSTM(nn.Module):
         out = self.fc(out)
         return out           
 
+
+     
+
 """
 모델 구조가 잘 만들어 졌는지 확인 
 
-model = CNN()        
-x = torch.randn(64, 1, 28, 28)    # Batch = 64, 이미지 크기= 28 x 28
+model = RNN(input_size=28, sequence_length=28, hidden_size=256, num_layers=2, num_classes=10).to(device)        
+x = torch.randn(64, 28, 28).to(device)    # Batch = 64, 이미지 크기= 28 x 28
 print(model(x).shape)   # torch.Size([64, 10])
 """
-        
-
-# ================================================================= #
-#                         2. Set device                             #
-# ================================================================= #
-# %% 02. 프로세스 장비 설정 
-gpu_no = 0  # gpu_number 
-device = torch.device( f'cuda:{gpu_no}' if torch.cuda.is_available() else 'cpu')
-
-
-
+   
 # ================================================================= #
 #                       3. Hyperparameters                          #
 # ================================================================= #
 # %% 03. 하이퍼파라미터 설정 
 """
+[RNN for Images]
+
 MNIST 데이터의 데이터 형태는 (B, C, H, W) = (N, 1, 28, 28)
-이것을 RNN에 넣으
+이것을 RNN에 넣는다면(시퀀스 형태로),  H = 28 개의 시퀀스가 있고 
+각 시퀀스는 W = 28  길이의 feature_vector를 가진 꼴이다. 
 
+따라서, input_size = H = 28, 
+sequence_length = W = 28 이 된다. 
 """
-
-
 input_size = 28
 sequence_length = 28
-hidden_size = 256
 num_layers = 2
+hidden_size = 256
 num_classes = 10
-learning_rate = 0.005
+learning_rate = 0.001
 batch_size = 64
 num_epochs = 2
 
@@ -180,8 +205,10 @@ test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=Tr
 #                      5.  Initialize network                       #
 # ================================================================= #
 # %% 05. 모델 초기화
-model = RNN_LSTM(input_size, hidden_size, num_layers, num_classes).to(device)
-#model = RNN(input_size, hidden_size, num_layers, num_classes).to(device)
+#model = RNN(input_size, sequence_length, hidden_size, num_layers, num_classes).to(device)
+#model = RNN_LSTM(input_size, sequence_length, hidden_size, num_layers, num_classes).to(device)
+model = RNN_GRU(input_size, sequence_length, hidden_size, num_layers, num_classes).to(device)
+
 
 
 

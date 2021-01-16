@@ -93,7 +93,8 @@ print(model(x).shape)   # torch.Size([64, 10])
 #                         2. Set device                             #
 # ================================================================= #
 # %% 02. 프로세스 장비 설정 
-device = torch.device( 'cuda' if torch.cuda.is_available() else 'cpu')
+gpu_no = 0  # gpu_number 
+device = torch.device( f'cuda:{gpu_no}' if torch.cuda.is_available() else 'cpu')
 
 
 
@@ -172,6 +173,8 @@ for epoch in range(num_epochs):
 
     model.train()  
 
+    losses = [] 
+
     for batch_idx, (data, targets) in enumerate(train_loader): # 미니배치 별로 iteration 
         # Get data to cuda if possible
         data = data.to(device=device)  # 미니 베치 데이터를 device 에 로드 
@@ -185,9 +188,13 @@ for epoch in range(num_epochs):
         # backward
         optimizer.zero_grad()   # AutoGrad 하기 전에 매번 mini batch 별로 기울기 수치를 0으로 초기화 
         loss.backward()
+        losses.append(loss.item())
         
         # gradient descent or adam step
         optimizer.step()
+
+    mean_loss = sum(losses) / len(losses)
+    print(f"Loss at epoch {epoch} was {mean_loss:.5f}") # 소수 다섯째 자리까지 표시     
 
 
 

@@ -71,13 +71,12 @@ import torchvision.transforms as transforms  # Transformations we can perform on
 class CatsAndDogsDataset(Dataset):
     def __init__(self, csv_file, root_dir, transform=None):
         """
-
+        가져다쓸 데이터셋의 정보를 초기화한다. 
         """
-
-
         self.annotations = pd.read_csv(csv_file)
         self.root_dir = root_dir
         self.transform = transform
+
 
     def __len__(self):
         """

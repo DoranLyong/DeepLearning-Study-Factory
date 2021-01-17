@@ -30,13 +30,21 @@
 """
 
 
-#%% 임포트 토치 
+#%% 임포트 라이브러리 
+import os 
+import os.path as osp
+
+import pandas as pd  # .csv 형식의 데이터 프레임을 다루는 라이브러리 
+from skimage import io  # 이미지 파일을 불러오기위한 라이브러리 
 import torch 
 import torch.nn as nn  # 학습 가능한 레이어들을 담은 패키지 ; # All neural network modules, nn.Linear, nn.Conv2d, BatchNorm, Loss functions
 import torch.nn.functional as F # 학습 안 되는 레이어들을 담은 패키지 ; # All functions that don't have any parameters, relu, tanh, etc. 
 import torch.optim as optim  # 최적화 알고리즘을 담은 패키지 ; # For all Optimization algorithms, SGD, Adam, etc.
 from torch.utils.data import DataLoader   # Gives easier dataset management and creates mini batches
-
+from torch.utils.data import Dataset    # 가져다쓸 데이터셋 객체를 지칭하는 클래스 (ref) https://huffon.github.io/2020/05/26/torch-data/
+                                        
+                                        
+import torchvision
 import torchvision.datasets as datasets  # 이미지 데이터를 불러오고 변환하는 패키지 ;  # Has standard datasets we can import in a nice way
 import torchvision.transforms as transforms  # Transformations we can perform on our dataset
 
@@ -46,47 +54,71 @@ import torchvision.transforms as transforms  # Transformations we can perform on
 # ================================================================= #
 #                 1. Create CatsAndDogsDataset                      #
 # ================================================================= #
-# %% 01. 심플한 CNN 생성하기 
-class CNN(nn.Module):
-    def __init__(self, in_channels = 1, num_classes = 10):
-        super(CNN, self).__init__()
-        """
-        여기서는 학습이 가능한 계층을 설계한다. 
-        예를 들어 nn 패키지를 활용하는 것들 
-
-        (ex) nn.conv2d, nn.Linear, etc.
-        """
-
-        self.conv1 = nn.Conv2d(in_channels=1, out_channels=8, kernel_size=(3,3), stride=(1,1), padding=(1,1))
-        self.pool = nn.MaxPool2d(kernel_size=(2,2), stride = (2,2))
-        self.conv2 = nn.Conv2d(in_channels=8, out_channels=16, kernel_size=(3,3), stride=(1,1), padding=(1,1))
-        self.fc1 = nn.Linear(16*7*7, num_classes)
-
-    
-    def forward(self, x):
-        """
-        여기서는 학습 파라미터가 없는 계층을 설계한다. 
-        예를 들어 nn.functional 패키지를 활용한 것들 
-
-        (ex) F.relu, F.max_pool2d, etc.
-        """
-                
-        x = F.relu(self.conv1(x))
-        x = self.pool(x)
-        x = F.relu(self.conv2(x))
-        x = self.pool(x)
-        x = x.reshape(x.shape[0], -1)  # 펼치기 (unroll)
-        x = self.fc1(x)
-        
-        return x
-
+# %% 01. 데이터셋 로더 생성하기 
 """
-모델 구조가 잘 만들어 졌는지 확인 
+(dataset) https://www.kaggle.com/dataset/c75fbba288ac0418f7786b16e713d2364a1a27936e63f4ec47502d73d6ef30ab 
+에서 데이터을 먼저 받는다. 
 
-model = CNN()        
-x = torch.randn(64, 1, 28, 28)    # Batch = 64, 이미지 크기= 28 x 28
-print(model(x).shape)   # torch.Size([64, 10])
+데이터셋은 ./dataset/archive 에 위치시킨다. 
+
+
+# Dataset 클래스와 DataLoader 클래스의 관계:
+- DataLoader와 Dataset 클래스의 상속관계 (ref) https://hulk89.github.io/pytorch/2019/09/30/pytorch_dataset/
+- Dataset 클래스로 커스텀 데이터 셋을 만든다 => 생성된 데이터셋을 DataLoader 클래스로 전달해서 불러온다 (ref) https://wikidocs.net/57165
+- (ref) https://doranlyong-ai.tistory.com/42
 """
+
+class CatsAndDogsDataset(Dataset):
+    def __init__(self, csv_file, root_dir, transform=None):
+        """
+
+        """
+
+
+        self.annotations = pd.read_csv(csv_file)
+        self.root_dir = root_dir
+        self.transform = transform
+
+    def __len__(self):
+        """
+        초기화된 객체가 컨테이너 자료형을 가지고 있으면, 그것의 길이를 반환한다
+
+        __len__() 매직 함수를 사용하면 내장 함수 len()을 사용할 수 있다 
+
+        (ref) https://dgkim5360.tistory.com/entry/python-duck-typing-and-protocols-why-is-len-built-in-function
+        (ref) https://kwonkyo.tistory.com/234
+        (ref) https://medium.com/humanscape-tech/%ED%8C%8C%EC%9D%B4%EC%8D%AC%EC%9D%98-%EC%8A%A4%ED%8E%98%EC%85%9C-%EB%A9%94%EC%84%9C%EB%93%9C-special-method-2aea6bc4f2b9
+
+        """
+        return len(self.annotations) # 로드된 데이터의 개수(길이) 를 반환한다 
+
+
+    def __getitem__(self, index):
+        """
+        데이터셋 시퀀스에서 특정 index에 해당하는 아이템을 가져온다 (= 객체에 indexing 기능을 사용할 수 있음). 
+
+        (ref) http://hyeonjae-blog.logdown.com/posts/776615-python-getitem-len
+        """
+        img_path = osp.join(self.root_dir, self.annotations.iloc[index, 0]) # 행번호 index 에서 열번호 0 에 해당하는 아이템을 가져온다. (ex) cat.1.jpg
+                                                                            # (ref) https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.iloc.html
+                                                                            # (ref) https://devpouch.tistory.com/47
+        image = io.imread(img_path) # 해당 경로에서 이미지 파일을 불러온다 
+        y_label = torch.tensor(int(self.annotations.iloc[index, 1]))  # 타겟 레이블 정보를 가져온다 
+
+
+        if self.transform:
+            image = self.transform(image)
+
+        return (image, y_label)                                                                                                            
+
+
+
+
+
+
+
+
+
         
 
 # ================================================================= #
@@ -107,13 +139,13 @@ learning_rate = 0.001
 batch_size = 64
 num_epochs = 10
 
-load_model = True  # 체크포인트 모델을 가져오려면 True 
+load_model = False  # 체크포인트 모델을 가져오려면 True 
 
 
 # ================================================================= #
-#                      4.  Load Data (MNIST)                        #
+#                      4.  Load Data your dataset                   #
 # ================================================================= #
-# %% 04. MNIST 데이터 로드 
+# %% 04. 커스텀 데이터 로드 
 
 """
 랜덤 발생 기준을 시드로 고정함. 
@@ -122,29 +154,44 @@ load_model = True  # 체크포인트 모델을 가져오려면 True
 torch.manual_seed(42)
 
 
-train_dataset = datasets.MNIST( root='dataset/',    # 데이터가 위치할 경로 
-                                train=True,         # train 용으로 가져오고 
-                                transform=transforms.ToTensor(),  # 데이터 타입을 Tensor 형태로 변경 ; (ref) https://mjdeeplearning.tistory.com/81
-                                download=True       # 해당 root에 데이터가 없으면 torchvision 으로 다운 받아라 
+dataset = CatsAndDogsDataset(   csv_file= osp.join('dataset', 'archive', 'cats_dogs.csv'), 
+                                root_dir = osp.join('dataset', 'archive', 'cats_dogs_resized'), 
+                                transform = transforms.ToTensor(),  # 데이터 타입을 Tensor 형태로 변경 ; (ref) https://mjdeeplearning.tistory.com/81
                                 )
 
-train_loader = DataLoader(  dataset=train_dataset,   # 로드 할 데이터 객체 
+
+"""
+로드된 데이터셋 쪼개기
+
+# Dataset is actually a lot larger ~25k images, just took out 10 pictures
+# to upload to Github. It's enough to understand the structure and scale
+# if you got more images.
+
+이번 예제에서는 dataset 객체로부터 train:test = 5개 : 5개 로 쪼갠다 (현재 주어진 데이터는 총 10개). 
+"""
+
+train_set, test_set = torch.utils.data.random_split(dataset, [5, 5])
+
+train_loader = DataLoader(  dataset=train_set,       # 로드 할 데이터 객체 
                             batch_size=batch_size,   # mini batch 덩어리 크기 설정 
                             shuffle=True             # 데이터 순서를 뒤섞어라 
-                            )      
+                            )   
+
+test_loader = DataLoader(dataset=test_set, batch_size=batch_size, shuffle=True)
 
 
-test_dataset = datasets.MNIST(root='dataset/', train=False, transform=transforms.ToTensor(), download=True)
-test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=True)                                               
 
+"""
+torchvision의 datasets 패키지를 사용했을 때와는 어떻게 다른지 비교해보자. 
+"""
 
 
 # ================================================================= #
 #                      5.  Initialize network                       #
 # ================================================================= #
 # %% 05. 모델 초기화
-model = CNN().to(device)
-
+model = torchvision.models.googlenet(pretrained=True)
+model.to(device)
 
 # ================================================================= #
 #                      9. Checkpoint save & load                    #
@@ -241,11 +288,6 @@ for epoch in range(num_epochs):
 """
 
 def check_accuracy(loader, model):
-    if loader.dataset.train:
-        print("Checking accuracy on training data")
-    else:
-        print("Checking accuracy on test data")
-        
     num_correct = 0
     num_samples = 0
 
@@ -265,7 +307,10 @@ def check_accuracy(loader, model):
 
 
 # %%
+print("Checking accuracy on training data")
 check_accuracy(train_loader, model)
+
+print("Checking accuracy on test data")
 check_accuracy(test_loader, model)
 
 # %%

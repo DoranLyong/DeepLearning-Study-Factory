@@ -58,14 +58,67 @@ import torchvision.transforms as transforms  # Transformations we can perform on
 - (ref) https://doranlyong-ai.tistory.com/42
 """
 
-class CatsAndDogsDataset(Dataset):
-    def __init__(self, csv_file, root_dir, transform=None):
+
+# Download with: python -m spacy download en
+spacy_eng = spacy.load("en")    # 영어 모델을 사용한다 
+                                #(ref) https://yujuwon.tistory.com/entry/spaCy-%EC%82%AC%EC%9A%A9%ED%95%98%EA%B8%B0-%EC%84%A4%EC%B9%98-%EB%B0%8F-%EC%82%AC%EC%9A%A9
+
+class Vocabulary:
+    def __init__(self, freq_threshold):
+        self.itos = {0: "<PAD>", 1: "<SOS>", 2: "<EOS>", 3: "<UNK>"}
+        self.stoi = {"<PAD>": 0, "<SOS>": 1, "<EOS>": 2, "<UNK>": 3}
+        self.freq_threshold = freq_threshold
+
+    def __len__(self):
+        return len(self.itos)
+
+    @staticmethod
+    def tokenizer_eng(text):
+        return [tok.text.lower() for tok in spacy_eng.tokenizer(text)]
+
+    def build_vocabulary(self, sentence_list):
+        frequencies = {}
+        idx = 4
+
+        for sentence in sentence_list:
+            for word in self.tokenizer_eng(sentence):
+                if word not in frequencies:
+                    frequencies[word] = 1
+
+                else:
+                    frequencies[word] += 1
+
+                if frequencies[word] == self.freq_threshold:
+                    self.stoi[word] = idx
+                    self.itos[idx] = word
+                    idx += 1
+
+    def numericalize(self, text):
+        tokenized_text = self.tokenizer_eng(text)
+
+        return [
+            self.stoi[token] if token in self.stoi else self.stoi["<UNK>"]
+            for token in tokenized_text
+        ]
+
+
+
+class FlickrDataset(Dataset):
+    def __init__(self, root_dir, captions_file, transform=None, freq_threshold=5):
         """
         가져다쓸 데이터셋의 정보를 초기화한다. 
-        """
-        self.annotations = pd.read_csv(csv_file)
+        """        
         self.root_dir = root_dir
+        self.df = pd.read_csv(captions_file)
         self.transform = transform
+
+        # Get img, caption columns
+        self.imgs = self.df["image"]
+        self.captions = self.df["caption"]
+
+        # Initialize vocabulary and build vocab
+        self.vocab = Vocabulary(freq_threshold)
+        self.vocab.build_vocabulary(self.captions.tolist())
 
 
     def __len__(self):
@@ -79,7 +132,7 @@ class CatsAndDogsDataset(Dataset):
         (ref) https://medium.com/humanscape-tech/%ED%8C%8C%EC%9D%B4%EC%8D%AC%EC%9D%98-%EC%8A%A4%ED%8E%98%EC%85%9C-%EB%A9%94%EC%84%9C%EB%93%9C-special-method-2aea6bc4f2b9
 
         """
-        return len(self.annotations) # 로드된 데이터의 개수(길이) 를 반환한다 
+        return len(self.df) # 로드된 데이터의 개수(길이) 를 반환한다 
 
 
     def __getitem__(self, index):
@@ -88,21 +141,33 @@ class CatsAndDogsDataset(Dataset):
 
         (ref) http://hyeonjae-blog.logdown.com/posts/776615-python-getitem-len
         """
-        img_path = osp.join(self.root_dir, self.annotations.iloc[index, 0]) # 행번호 index 에서 열번호 0 에 해당하는 아이템을 가져온다. (ex) cat.1.jpg
-                                                                            # (ref) https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.iloc.html
-                                                                            # (ref) https://devpouch.tistory.com/47
-        image = io.imread(img_path) # 해당 경로에서 이미지 파일을 불러온다 
-        y_label = torch.tensor(int(self.annotations.iloc[index, 1]))  # 타겟 레이블 정보를 가져온다 
+        caption = self.captions[index]
+        img_id = self.imgs[index]
+        img = Image.open(os.path.join(self.root_dir, img_id)).convert("RGB") # index 에 해당하는 이미지를 가져온다. 
 
 
-        if self.transform:
-            image = self.transform(image)
+        if self.transform is not None:
+            img = self.transform(img)
 
-        return (image, y_label)                                                                                                            
+        numericalized_caption = [self.vocab.stoi["<SOS>"]]
+        numericalized_caption += self.vocab.numericalize(caption)
+        numericalized_caption.append(self.vocab.stoi["<EOS>"])            
+
+        return img, torch.tensor(numericalized_caption)                                                                                                          
 
 
 
+class MyCollate:
+    def __init__(self, pad_idx):
+        self.pad_idx = pad_idx
 
+    def __call__(self, batch):
+        imgs = [item[0].unsqueeze(0) for item in batch]
+        imgs = torch.cat(imgs, dim=0)
+        targets = [item[1] for item in batch]
+        targets = pad_sequence(targets, batch_first=False, padding_value=self.pad_idx)
+
+        return imgs, targets
 
 
 
@@ -143,163 +208,41 @@ load_model = False  # 체크포인트 모델을 가져오려면 True
 torch.manual_seed(42)
 
 
-dataset = CatsAndDogsDataset(   csv_file= osp.join('dataset', 'archive', 'cats_dogs.csv'), 
-                                root_dir = osp.join('dataset', 'archive', 'cats_dogs_resized'), 
-                                transform = transforms.ToTensor(),  # 데이터 타입을 Tensor 형태로 변경 ; (ref) https://mjdeeplearning.tistory.com/81
+def get_loader( root_folder, annotation_file,
+                transform, batch_size=32,
+                num_workers=8, shuffle=True,
+                pin_memory=True, 
+                ):
+    dataset = FlickrDataset(root_folder, annotation_file, transform=transform)
+
+    pad_idx = dataset.vocab.stoi["<PAD>"]
+
+    loader = DataLoader(
+        dataset=dataset,
+        batch_size=batch_size,
+        num_workers=num_workers,
+        shuffle=shuffle,
+        pin_memory=pin_memory,
+        collate_fn=MyCollate(pad_idx=pad_idx),
+    )
+
+    return loader, dataset
+
+
+
+
+transform = transforms.Compose( [transforms.Resize((224, 224)), 
+                                transforms.ToTensor(),]
                                 )
 
 
-"""
-로드된 데이터셋 쪼개기
 
-# Dataset is actually a lot larger ~25k images, just took out 10 pictures
-# to upload to Github. It's enough to understand the structure and scale
-# if you got more images.
-
-이번 예제에서는 dataset 객체로부터 train:test = 5개 : 5개 로 쪼갠다 (현재 주어진 데이터는 총 10개). 
-"""
-
-train_set, test_set = torch.utils.data.random_split(dataset, [5, 5])
-
-train_loader = DataLoader(  dataset=train_set,       # 로드 할 데이터 객체 
-                            batch_size=batch_size,   # mini batch 덩어리 크기 설정 
-                            shuffle=True             # 데이터 순서를 뒤섞어라 
-                            )   
-
-test_loader = DataLoader(dataset=test_set, batch_size=batch_size, shuffle=True)
+loader, dataset = get_loader( "./dataset/flickr8k/images/", "./dataset/flickr8k/captions.txt", transform=transform  )
 
 
 
-"""
-torchvision의 datasets 패키지를 사용했을 때와는 어떻게 다른지 비교해보자. 
-"""
 
-
-# ================================================================= #
-#                      5.  Initialize network                       #
-# ================================================================= #
-# %% 05. 모델 초기화
-model = torchvision.models.googlenet(pretrained=True)
-model.to(device)
-
-# ================================================================= #
-#                      9. Checkpoint save & load                    #
-# ================================================================= #
-#%% 09. 체크포인트를 저장하고 다시 로드하기 
-def save_checkpoint(state, filename="my_checkpoint.pth.tar"):
-    print("=> Saving checkpoint")
-    torch.save(state, filename)
-    
-
-def load_checkpoint(checkpoint, model, optimizer):
-    print("=> Loading checkpoint")
-    model.load_state_dict(checkpoint['state_dict'])
-    optimizer.load_state_dict(checkpoint['optimizer'])
-
-
-
-# ================================================================= #
-#                  6.  Loss and optimizer  & load checkpoint        #
-# ================================================================= #
-# %% 06. 손실 함수와 최적화 알고리즘 정의 
-criterion = nn.CrossEntropyLoss()   
-optimizer = optim.Adam( model.parameters(), lr=learning_rate)  # 네트워크의 모든 파라미터를 전달한다 
-
-if load_model:
-    try: 
-        load_checkpoint(torch.load("my_checkpoint.pth.tar"), model, optimizer)
-
-    except OSError as e: 
-        print(e)
-        pass 
-
-
-# ================================================================= #
-#                      7.  Train network & save                     #
-# ================================================================= #
-# %% 07. 학습 루프 
-
-"""
-# 학습하기 전에 모델이 AutoGrad를 사용해 학습할 수 있도록 train_mode 로 변환.
-
-(1) backpropagation 계산이 가능한 상태가 됨.
-(2) Convolution 또는 Linear 뿐만 아니라, 
-    DropOut과 Batch Normalization 등의  파라미터를 가진 Layer들도 학습할 수 있는 상태가 된다. 
-"""
-
-for epoch in range(num_epochs):
-
-    model.train()  
-
-    losses = [] 
-
-    
-    if epoch % 3 == 0: # 3주기 마다 모델 저장  
-        checkpoint = {'state_dict' : model.state_dict(), 'optimizer': optimizer.state_dict()} # 체크 포인트 상태 
-        # Try save checkpoint
-        save_checkpoint(checkpoint)
-
-    for batch_idx, (data, targets) in enumerate(train_loader): # 미니배치 별로 iteration 
-        # Get data to cuda if possible
-        data = data.to(device=device)  # 미니 베치 데이터를 device 에 로드 
-        targets = targets.to(device=device)  # 레이블 for supervised learning 
-        
-        
-        # forward
-        scores = model(data)   # 모델이 예측한 수치 
-        loss = criterion(scores, targets)
-        losses.append(loss.item())
-        
-        # backward
-        optimizer.zero_grad()   # AutoGrad 하기 전에 매번 mini batch 별로 기울기 수치를 0으로 초기화 
-        loss.backward()
-        
-        # gradient descent or adam step
-        optimizer.step()
-    
-    mean_loss = sum(losses) / len(losses)
-    print(f"Loss at epoch {epoch} was {mean_loss:.5f}") # 소수 다섯째 자리까지 표시 
-
-
-
-# ================================================================= #
-# 8.  Check accuracy on training & test to see how good our model   #
-# ================================================================= #
-# %% 08. 학습 정확도 확인
-"""
-(1) 평가 단계에서는 모델에 evaluation_mode 를 설정한다 
-    - 학습 가능한 파라미터가 있던 계층들을 잠금 
-
-(2) AutoGrad engine 을 끈다 ; torch.no_grad() 
-    - backpropagation 이나 gradient 계산 등을 꺼서 memory usage를 줄이고 속도를 높임.
-    
-    - (ref) http://taewan.kim/trans/pytorch/tutorial/blits/02_autograd/
-"""
-
-def check_accuracy(loader, model):
-    num_correct = 0
-    num_samples = 0
-
-    model.eval()  
-    
-    with torch.no_grad():
-        for x, y in loader:
-            x = x.to(device=device)
-            y = y.to(device=device)
-            
-            scores = model(x)
-            _, predictions = scores.max(1)
-            num_correct += (predictions == y).sum()
-            num_samples += predictions.size(0)
-        
-        print(f'Got {num_correct} / {num_samples} with accuracy {float(num_correct)/float(num_samples)*100:.2f}')  # 소수 둘 째 자리 까지 표현
-
-
-# %%
-print("Checking accuracy on training data")
-check_accuracy(train_loader, model)
-
-print("Checking accuracy on test data")
-check_accuracy(test_loader, model)
-
+for idx, (imgs, captions) in enumerate(loader):
+        print(imgs.shape)
+        print(captions.shape)
 # %%

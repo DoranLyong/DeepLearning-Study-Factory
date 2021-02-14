@@ -12,7 +12,7 @@
 """
 
 """
-Albumentations 라이브러리로 변환한 데이터의 자료형(= Numpy)을 PyTorch Tensor로 변환해서 dataloader 만들기 
+Albumentations 라이브러리를 PyTorch Tensor 에 사용할 수 있게 만들기 
 
 
 1. Create custom dataset object for torch.Tensor 

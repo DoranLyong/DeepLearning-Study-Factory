@@ -130,7 +130,7 @@ train_dataset = datasets.CIFAR10( root='dataset/',    # 데이터가 위치할 �
 train_loader = DataLoader(  dataset=train_dataset,   # 로드 할 데이터 객체 
                             batch_size=batch_size,   # mini batch 덩어리 크기 설정 
                             shuffle=True,            # 데이터 순서를 뒤섞어라 
-                            #num_workers=1,
+                            num_workers=4,          # Broken Pipe 에러 뜨면 지우기 
                             )      
 
 

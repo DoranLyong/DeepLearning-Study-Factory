@@ -149,7 +149,7 @@ scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer,factor=0.1, pat
 #                              Train-loop                           #
 # ================================================================= #
 
-# %% Train 
+# %% Train-loo  정의 
 def train(epoch):
     global NUM_EPOCHS, scheduler 
 
@@ -219,13 +219,8 @@ def train(epoch):
     
 
 
-
-# %%
+# %% Train-loop 실행 
 for epoch in range(1, NUM_EPOCHS+1):
     train(epoch)
     
 
-
-
-
-# %%

@@ -8,4 +8,4 @@ Building network architecture study
 
 ***
 ### Architectures 
-* [ResNet-tutorial](https://github.com/DoranLyong/ResNet-tutorial) - ResNet 
+* [ResNet-tutorial](https://github.com/DoranLyong/ResNet-tutorial) - ResNet from scratch

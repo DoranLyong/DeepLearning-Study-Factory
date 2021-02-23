@@ -193,11 +193,8 @@ def train(epoch):
         """
         # (ref) https://github.com/DoranLyong/DeepLearning_model_factory/blob/master/ML_tutorial/PyTorch/Basics/Utility/progress_bar_for_DataLoader.py
         # (ref) https://www.deeplearningwizard.com/deep_learning/boosting_models_pytorch/lr_scheduling/
+        # LR 수치 가져와 보기 ; (ref) https://discuss.pytorch.org/t/how-to-retrieve-learning-rate-from-reducelronplateau-scheduler/54234
 
-        """
-        # lr 수치 가져와 보기  
-        # (ref) https://discuss.pytorch.org/t/how-to-retrieve-learning-rate-from-reducelronplateau-scheduler/54234
-        """
         loop.set_description(f"Epoch [{epoch}/{NUM_EPOCHS}], LR={ optimizer.param_groups[0]['lr'] :.1e}")
         
 

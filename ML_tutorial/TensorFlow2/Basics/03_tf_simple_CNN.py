@@ -102,15 +102,18 @@ def my_model():
     x = layers.BatchNormalization()(x)
     x = keras.activations.relu(x)
     x = layers.MaxPooling2D()(x)
+
     x = layers.Conv2D(64, 3)(x)
     x = layers.BatchNormalization()(x)
     x = keras.activations.relu(x)
     x = layers.MaxPooling2D()(x)
+
     x = layers.Conv2D(128, 3)(x)
     x = layers.BatchNormalization()(x)
     x = keras.activations.relu(x)
     x = layers.Flatten()(x)
     x = layers.Dense(64, activation="relu")(x)
+    
     outputs = layers.Dense(10)(x)
 
     """ 모델 초기화 
@@ -155,7 +158,7 @@ model.compile(  loss=keras.losses.SparseCategoricalCrossentropy(from_logits=Fals
 # ================================================================= #
 # %% 05. 학습 실행 
 
-model.fit(x_train, y_train, batch_size=64, epochs=10, verbose=2)
+model.fit(x_train, y_train, batch_size=64, epochs=150, verbose=2)
 
 
 # ================================================================= #

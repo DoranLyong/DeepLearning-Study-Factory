@@ -23,7 +23,7 @@ MNIST 데이터셋으로 학습하기:
 1. Set device 
 2. Create a fully-connected network 
     - Sequential API 방식으로 만들기 
-    - Functional APU 방식으로 만들기 
+    - Functional API 방식으로 만들기 
 
 3. Load Data (MNIST)
 4. Model Compile

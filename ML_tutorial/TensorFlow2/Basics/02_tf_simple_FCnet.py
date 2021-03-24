@@ -138,6 +138,8 @@ x_train = x_train.reshape(-1, 28 * 28).astype("float32") / 255.0
 x_test = x_test.reshape(-1, 28 * 28).astype("float32") / 255.0
 
 
+print(x_train[0].shape)
+
 
 # ================================================================= #
 #                       4. Model Compile                            #
@@ -165,3 +167,24 @@ model.fit(x_train, y_train, batch_size=32, epochs=5, verbose=2)
 # %% 06. 모델 평가 
 
 model.evaluate(x_test, y_test, batch_size=32, verbose=2)
+
+
+
+
+# ================================================================= #
+#                    7. Prediction (=inference)                     #
+# ================================================================= #
+# %% 07. 학습된 모델을 통한 예측
+
+query = x_test[:1]
+
+y_prediction = model.predict(query)
+
+print(query.shape)
+print(y_prediction)
+
+print(f"argmax: {y_prediction.argmax()}")
+print(f"GT_label: {y_test[0]}")
+
+
+# %%

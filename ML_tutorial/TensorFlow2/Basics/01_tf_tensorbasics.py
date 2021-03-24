@@ -35,10 +35,98 @@ x = tf.range(start=0, limit=10, delta=2) # [0, 10) 범위에서 2스텝으로 �
 
 
 
-# %%
-
-
 # =============================================================================== #
 #                        Tensor Math & Comparison Operations                      #
 # =============================================================================== #
+# %% 02. 텐서 연산 (Math & Comparison Operations)
+x = tf.constant([1, 2, 3])
+y = tf.constant([9, 8, 7])
+
+
+#%% 덧셈(addition)
+z = tf.add(x, y)
+z = x + y
+
+
+# %% 뺄셈(subtraction)
+z = tf.subtract(x, y)
+z = x - y 
+
+
+# %% 나눗셈(division)
+z = tf.divide(x, y)
+z = x / y
+
+
+# %% 곱셈(multiplication)
+z = tf.multiply(x, y)
+z = x * y
+
+
+# %% 벡터 내적 (dot-product)
+z = tf.tensordot(x, y, axes=1)  # (ref) https://www.tensorflow.org/api_docs/python/tf/tensordot
+
+
+
+# %% 벡터 외적 (cross-product)
+z = tf.tensordot(x, y, axes=0)  # (ref) https://www.tensorflow.org/api_docs/python/tf/tensordot
+
+
+# %%
+x = tf.random.normal((2, 3))
+y = tf.random.normal((3, 2))
+
+
+# %% 행렬 곱셈(matrix multiplication)
+z = tf.matmul(x, y)   # (ref) https://chan-lab.tistory.com/tag/tf.multiply%20vs%20tf.matmul
+z = x @ y   # (ref) https://www.tensorflow.org/api_docs/python/tf/linalg/matmul
+
+
+
+
+# ============================================================= #
+#                        Tensor Indexing                        #
+# ============================================================= #
+# %%
+x = tf.constant([0, 1, 2, 3, 4, 5, 6, 7])
+
+
+# %% 03. 텐서 인덱싱 
+print(x[:])
+print(x[1:])
+print(x[1:3])
+print(x[::2])   # 처음부터 끝까지 2스텝으로 
+print(x[::-1])  # 처음부터 끝까지 역순으로 
+
+
+# %% 좀더 기교있는 인덱싱 (Facny indexing)
+indices = tf.constant([0, 3])
+x_indices = tf.gather(x, indices)  # indices 0, 3의 요소 가져오기 
+
+
+# %%
+x = tf.constant([[1, 2], [3, 4], [5, 6]])
+
+print(x)
+print(x[0, :])
+print(x[0:2, :])
+
+
+# ============================================================= #
+#                        Tensor Reshaping                       #
+# ============================================================= #
+# %% 04. 텐서 형태 바꾸기 
+x = tf.range(9)   # 요소 9개 초기화 
+
+
+#%%
+x = tf.reshape(x, (3, 3))  # 요소 9개를 3x3 형태로 변환 
+print(x)
+
+#%%
+x = tf.transpose(x, perm=[1, 0])  # permute the dimensions according to [1, 0]  (ref) https://www.tensorflow.org/api_docs/python/tf/transpose
+                                  # 축(axes)을 1, 0 순으로 교환 
+
+print(x)
+
 # %%

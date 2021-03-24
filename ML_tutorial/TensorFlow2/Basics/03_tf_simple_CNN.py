@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-(ref) https://youtu.be/pAhPiF3yiXI
-(ref) https://github.com/aladdinpersson/Machine-Learning-Collection/blob/master/ML/TensorFlow/Basics/tutorial3-neuralnetwork.py
+(ref) https://youtu.be/WAciKiDP2bo
+(ref) https://github.com/aladdinpersson/Machine-Learning-Collection/blob/master/ML/TensorFlow/Basics/tutorial4-convnet.py
 
 
 * Run this code on VScode (it can be run with Jupyter notebook conntection)
@@ -17,19 +17,19 @@ Sequential, Functional, Subclassing API 방식에 대해 알고 싶으면 아래
     * Creating-Model methods ; (ref) https://blog.naver.com/cheeryun/221912941277
 
 
-Fully-connected(FC) 네트워크를 구성하고,
-MNIST 데이터셋으로 학습하기:
+CNN 네트워크를 구성하고 ,
+cifar10 데이터셋으로 학습하기:
 
 1. Set device 
-2. Create a fully-connected network 
+2. Create CNN model   
     - Sequential API 방식으로 만들기 
     - Functional APU 방식으로 만들기 
 
-3. Load Data (MNIST)
+3. Load Data (cifar10)
 4. Model Compile
 5. Train network
 6. Check accuracy on test to see how good our model
-7. prediction (=inference)  
+7. prediction (=inference)    
 """
 
 
@@ -42,8 +42,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"    # 에러 로그 삭제 ; (ref) https
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
-from tensorflow.keras.datasets import mnist
-
+from tensorflow.keras.datasets import cifar10
 
 
 # ================================================================= #
@@ -59,38 +58,22 @@ else:
     print("No GPU")
 
 
+
 # ================================================================= #
 #    2-1. Create a fully-connected network  with Sequential API     #
 # ================================================================= #
 # %% 02-1. 심플한 FCnet 생성하기 using Sequential API (Very convenient, not very flexible)
 
-#%% 방법 1 
-model = keras.Sequential(
-    [
-        keras.Input(shape=(28 * 28)),
-        layers.Dense(512, activation="relu"),
-        layers.Dense(256, activation="relu"),
-        layers.Dense(10),
-    ]
-)
 
-print(model.summary())  # 모델 구조 출력 
-
-#%% 방법 2
-model = keras.Sequential()
-model.add(keras.Input(shape=(28*28)))
-model.add(layers.Dense(512, activation="relu"))
-model.add(layers.Dense(256, activation="relu", name="my_layer"))
-model.add(layers.Dense(10))
-
-print(model.summary())  # 모델 구조 출력 
-
-
-# %% 방법 3 
-layer_list = [  keras.Input(shape=(28*28)),
-                layers.Dense(512, activation="relu"),
-                layers.Dense(256, activation="relu", name="my_layer"),
-                layers.Dense(10)
+layer_list = [  keras.Input(shape=(32, 32, 3)),
+                layers.Conv2D(32, 3, padding="valid", activation="relu"),
+                layers.MaxPooling2D(),
+                layers.Conv2D(64, 3, activation="relu"),
+                layers.MaxPooling2D(),
+                layers.Conv2D(128, 3, activation="relu"),
+                layers.Flatten(),
+                layers.Dense(64, activation="relu"),
+                layers.Dense(10),
             ]
 
 model = keras.Sequential(layer_list)
@@ -111,31 +94,47 @@ print(model.summary())  # 모델 구조 출력
 #    2-2. Create a fully-connected network  with Functional API     #
 # ================================================================= #
 # %% 02-2. 심플한 FCnet 생성하기 using Functional API (A bit more flexible)
+def my_model():
+    """ 레이어 설계 
+    """
+    inputs = keras.Input(shape=(32, 32, 3))
+    x = layers.Conv2D(32, 3)(inputs)
+    x = layers.BatchNormalization()(x)
+    x = keras.activations.relu(x)
+    x = layers.MaxPooling2D()(x)
+    x = layers.Conv2D(64, 3)(x)
+    x = layers.BatchNormalization()(x)
+    x = keras.activations.relu(x)
+    x = layers.MaxPooling2D()(x)
+    x = layers.Conv2D(128, 3)(x)
+    x = layers.BatchNormalization()(x)
+    x = keras.activations.relu(x)
+    x = layers.Flatten()(x)
+    x = layers.Dense(64, activation="relu")(x)
+    outputs = layers.Dense(10)(x)
 
-""" 레이어 설계 
-"""
-inputs = keras.Input(shape=(28*28))
-x = layers.Dense(512, activation="relu", name="first_layer")(inputs)
-x = layers.Dense(256, activation="relu", name="second_layer")(x)
-outputs = layers.Dense(10, activation="softmax")(x)
+    """ 모델 초기화 
+    """
+    model = keras.Model(inputs=inputs, outputs=outputs)
+    return model
 
-""" 모델 초기화 
-"""
-model = keras.Model(inputs=inputs, outputs=outputs)
+
+
+model = my_model()
 
 print(model.summary())  # 모델 구조 출력 
 
 
 
 # ================================================================= #
-#                      3.  Load Data (MNIST)                        #
+#                      3.  Load Data (cifar-10)                        #
 # ================================================================= #
 # %% 03. MNIST 데이터 로드 
 
-(x_train, y_train), (x_test, y_test) = mnist.load_data()
+(x_train, y_train), (x_test, y_test) = cifar10.load_data()
 
-x_train = x_train.reshape(-1, 28 * 28).astype("float32") / 255.0
-x_test = x_test.reshape(-1, 28 * 28).astype("float32") / 255.0
+x_train = x_train.astype("float32") / 255.0
+x_test = x_test.astype("float32") / 255.0
 
 
 
@@ -145,7 +144,7 @@ x_test = x_test.reshape(-1, 28 * 28).astype("float32") / 255.0
 # %% 04. 모델 컴파일 
 
 model.compile(  loss=keras.losses.SparseCategoricalCrossentropy(from_logits=False),
-                optimizer=keras.optimizers.Adam(lr=1e-3), 
+                optimizer=keras.optimizers.Adam(lr=3e-4), 
                 metrics=["accuracy"],
             )
 
@@ -156,7 +155,7 @@ model.compile(  loss=keras.losses.SparseCategoricalCrossentropy(from_logits=Fals
 # ================================================================= #
 # %% 05. 학습 실행 
 
-model.fit(x_train, y_train, batch_size=32, epochs=5, verbose=2)
+model.fit(x_train, y_train, batch_size=64, epochs=10, verbose=2)
 
 
 # ================================================================= #
@@ -164,4 +163,12 @@ model.fit(x_train, y_train, batch_size=32, epochs=5, verbose=2)
 # ================================================================= #
 # %% 06. 모델 평가 
 
-model.evaluate(x_test, y_test, batch_size=32, verbose=2)
+model.evaluate(x_test, y_test, batch_size=64, verbose=2)
+
+
+
+# ================================================================= #
+#                    7. Prediction (=inference)                     #
+# ================================================================= #
+# %% 07. 학습된 모델을 통한 예측모델 
+y_prediction = model.predict(x_test[0])

@@ -22,7 +22,7 @@ cifar10 데이터셋으로 학습하기:
 
 1. Set device 
 2. Create CNN model   
-    - Functional APU 방식으로 만들기 (regularizers 추가)
+    - Functional API 방식으로 만들기 (regularizers 추가)
         * l2-regularizer
         * dropout
 

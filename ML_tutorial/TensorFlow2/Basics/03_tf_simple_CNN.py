@@ -175,10 +175,10 @@ model.evaluate(x_test, y_test, batch_size=64, verbose=2)
 
 query = x_test[:1]
 
-y_prediction = model.predict(query)
+y_prediction = model.predict(query)   # (ref) https://blog.naver.com/cheeryun/221927717487
 
 print(query.shape)
 print(y_prediction)
 
-print(f"argmax: {y_prediction.argmax()}")
+print(f"argmax: {y_prediction.argmax()}")  # (ref) https://rfriend.tistory.com/356
 print(f"GT_label: {y_test[0]}")

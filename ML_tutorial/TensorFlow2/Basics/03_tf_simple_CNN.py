@@ -167,8 +167,18 @@ model.evaluate(x_test, y_test, batch_size=64, verbose=2)
 
 
 
+
 # ================================================================= #
 #                    7. Prediction (=inference)                     #
 # ================================================================= #
-# %% 07. 학습된 모델을 통한 예측모델 
-y_prediction = model.predict(x_test[0])
+# %% 07. 학습된 모델을 통한 예측
+
+query = x_test[:1]
+
+y_prediction = model.predict(query)
+
+print(query.shape)
+print(y_prediction)
+
+print(f"argmax: {y_prediction.argmax()}")
+print(f"GT_label: {y_test[0]}")

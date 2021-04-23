@@ -18,5 +18,11 @@ Building network architecture study
 * [U-Net-tutorial](https://github.com/DoranLyong/U-NET-tutorial) - U-Net from scratch 
 
 
+### Object Counting 
+* [Object Counting by A Density Map](https://github.com/DoranLyong/Object-Counting-by-A-Density-Map/blob/main/README.md) - (ongoing)
+
+
+
+
 
 

@@ -22,6 +22,10 @@ Building network architecture study
 * [Object Counting by A Density Map](https://github.com/DoranLyong/Object-Counting-by-A-Density-Map/blob/main/README.md) - (ongoing)
 
 
+### Generative Adversarial Networks (GAN)
+* [Simple GAN tutorial](https://github.com/DoranLyong/simple-GAN-tutorial/tree/main/simple-GAN_pytorch) - simple GAN with MNIST 
+
+
 
 
 

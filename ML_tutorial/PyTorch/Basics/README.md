@@ -1,5 +1,5 @@
 # PyTorch Basic 
-
+기초 따라하기 
 
 
 

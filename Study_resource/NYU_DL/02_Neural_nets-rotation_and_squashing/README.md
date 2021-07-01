@@ -37,5 +37,8 @@
 ### 4. [Jupyter and PyTorch](https://youtu.be/0TdAmZUMj2k?t=846)
 
 
+### 5. [Input dat](https://youtu.be/0TdAmZUMj2k?t=1127)
 
+
+### 6. [Coding a 2×2 linear transformation ](https://youtu.be/0TdAmZUMj2k?t=1479)& Gilbert Strang
 

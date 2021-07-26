@@ -29,6 +29,7 @@
   * 이교수 관점에서 rotating은  affine transformation을 말한다 
   * 그냥 '이리 저리 단순히 돌리고' 라는 표현인가 보다?
   
+
 ※ ```squashing(= twisting)``` : changing things in a non-linear way
 
 
@@ -44,4 +45,6 @@
 
 
 ### 7. [Coding a 2×2 linear transformation]() w/ PyTorch
+
+### 8. [The Neural Network, A Visual Introduction](https://youtu.be/UOvPeC8WOt8); 코드 따라 해보기 
 

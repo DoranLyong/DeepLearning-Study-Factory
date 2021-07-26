@@ -48,7 +48,7 @@
 ### 9. [Inference](https://youtu.be/EyKiYVwrdjE?t=2346)
 
 * 7번 8번 섹션 참고 
-* 딥러닝이 성곤한 이유: 차원을 ```빅뱅(Big Bang)``` (= up-sampling) 처럼 크게 키웠다가 ```짜부려트리(Squashing)```면서 양질의 특징 맵을 찾을 수 있기 때문
+* 딥러닝이 성공한 이유: 차원을 ```빅뱅(Big Bang)``` (= up-sampling) 처럼 크게 키웠다가 ```짜부려트리(Squashing)```면서 양질의 특징 맵을 찾을 수 있기 때문
 * (Q) Why do we go in high dimensional space? 
   * (A) Because in high dimensional space ```things are easy to move``` so that the optimization algorithms actually can work.
 

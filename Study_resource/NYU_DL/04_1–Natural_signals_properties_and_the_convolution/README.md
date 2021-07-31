@@ -37,6 +37,8 @@
 
 Convolutional neural nets 이 가지는 특성. 
 
+* natural signal 이 가지는 stationarity, locality, and compositionality 특성을 어떻게 변환 시켜서 다룰까? 
+
 ### 5. [Locality → Sparsity](https://youtu.be/KvvNkE2vQVk?t=1990)
 
 * how can ```locality``` induce ```sparsity```? (we can use sparsity given that our signal is local)

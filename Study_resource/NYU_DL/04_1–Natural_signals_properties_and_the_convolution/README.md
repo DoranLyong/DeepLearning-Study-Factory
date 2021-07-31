@@ -121,7 +121,23 @@ Convolutional neural nets 이 가지는 특성.
 
 ***
 
-### 코드 실습 
+### 코드 실습 - ([ref](https://github.com/Atcold/pytorch-Deep-Learning/blob/master/06-convnet.ipynb))
+
+* Permuted pixels (= shuffling the pixels) - 이미지의 픽셀 순서를 마구잡이로 뒤섞어 버리면? 
+  * Fully-connected network는 성능 하강이 별로 없음 
+  * 반면에  ConvNet은 성능이 매우 떨어짐 
+* 이를 통해 [ConvNet 은 local region에 대한 공간 정보를 학습한 다는 사실을 알 수 있음](https://youtu.be/KvvNkE2vQVk?t=3974)
+* 반면 FC-network 의 경우 이미지 데이터의 픽셀 순서가 마구잡이로 바뀌었더라도 통계적인 variation 이 바뀐 것이 아니기 때문에 영향을 덜 받음 
+
+
+
+
+
+***
+
+### Reference 
+
+[1] [NYU-DLSP20, website](https://atcold.github.io/pytorch-Deep-Learning/) / 
 
 
 

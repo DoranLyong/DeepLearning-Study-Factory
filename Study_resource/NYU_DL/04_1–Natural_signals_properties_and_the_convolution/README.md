@@ -13,9 +13,34 @@
 
 
 
-### 3. Natural signal properties 
+### 3. [Natural signal properties](https://youtu.be/KvvNkE2vQVk?t=1118)
+
+* How does the 1D signal work? 
+  * Signals can be represented as ```vectors ```
+  * [1D stationarity](https://youtu.be/KvvNkE2vQVk?t=1241) - Do similar type of patterns happen? (반복되는 비슷한 패턴 찾기)
+  * [1D locality](https://youtu.be/KvvNkE2vQVk?t=1285) - there is some type of ```local structure``` in the signal (the information has a strong correlation in a local regions and then it happens again and again)
+* How does the 2D signal work? 
+  * [2D stationarity](https://youtu.be/KvvNkE2vQVk?t=1409) - 픽셀 사이의 틈(crevice)가 보임. 어떤 similar pattern이 happen again again 일까?  
+  * [2D locality](https://youtu.be/KvvNkE2vQVk?t=1504) - the information in the signal happen to have local property as locality 
+  * [2D compositionality](https://youtu.be/KvvNkE2vQVk?t=1616) - ```함께 놓여있을 때 생기는 성질```. 이미지는 픽셀들이 모여서 의미있는 형상을 만든다. (hierarchical combination of individual stimulate or signal)
 
 
+
+### 4. (recap) [Fully-connected(FC) layer](https://youtu.be/KvvNkE2vQVk?t=1877)
+
+* Now we know that ```natural signals have``` this specific type of ```the three properties```; {stationarity, locality, compositionality }
+* FC-layer는 1D/2D signal 의 stationarity, locality, and compositionality 특성을 있는 그대로 다룬다 
+
+
+
+***
+
+Convolutional neural nets 이 가지는 특성. 
+
+### 5. [Locality → Sparsity](https://youtu.be/KvvNkE2vQVk?t=1990)
+
+* how can ```locality``` induce ```sparsity```? (we can use sparsity given that our signal is local)
+* 
 
 
 

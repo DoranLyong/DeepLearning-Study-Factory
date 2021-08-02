@@ -25,9 +25,32 @@
 
 ### 4. [Vector to sequence](https://youtu.be/5KSGNomPJTE?t=972) - vec2seq
 
-* grid 형태의 데이터는 전부 다룰 수 있음 
+* grid 형태의 데이터는 전부 다룰 수 있음 (1D, 2D, 3D-grid so on)
 * (Q) [What could be an application that uses this kind of diagram](https://youtu.be/5KSGNomPJTE?t=1075)? (vec → seq 형태로 모델링 할 수 있는 어플리케이션은?)
-  * 
+  * (ex) Image caption ( image → script description )
+
+
+
+### 5. [Sequence to vector](https://youtu.be/5KSGNomPJTE?t=1383) - seq2vec 
+
+* (ex) purchase review  → star rank point 
+* [Learning to execute](https://youtu.be/5KSGNomPJTE?t=1461) - 논문 리뷰 (인간의 텍스트로 프로그래밍 하는 네트워크)
+  *  you provide a sequence of text describing a python program → the answer of the program 
+* (Q) [Isn't for image captioning first we need to extract its features in the case of? we have many features that we feed into the RNN.  ](https://youtu.be/5KSGNomPJTE?t=1545) - RNN에 넣기 전에 feature를 먼저 뽑아야 하는거 아님? 
+  * (A) Yes, whenever you have an input which is a signal over a 2D grid, you're going to be using a CNN in order to extract information.
+
+
+
+### 6. [Sequence to vector to sequence](https://youtu.be/5KSGNomPJTE?t=1654) - seq2vec2seq
+
+* (ex) 자연어 번역 (영어 → context → 한글)
+* [Algebraic structure of the embedding space](https://youtu.be/5KSGNomPJTE?t=1831)
+
+
+
+### 7. [Sequence to sequence](https://youtu.be/5KSGNomPJTE?t=2126) - seq2seq
+
+* (ex) 텍스트 자동완성? 
 
 
 
@@ -48,6 +71,10 @@
 ### Reference 
 
 [1] [NYU-DLSP20, website](https://atcold.github.io/pytorch-Deep-Learning/) / 
+
+[2] [recurrent_neural_net_demo, github](https://github.com/llSourcell/recurrent_neural_net_demo) /  
+
+[3] [LSTM Networks with Math, YouTube](https://www.youtube.com/watch?v=9zhrxE5PQgY&list=PL2-dafEMk2A7mu0bSksCGMJEmeddU_H4D&index=16) / 
 
 
 

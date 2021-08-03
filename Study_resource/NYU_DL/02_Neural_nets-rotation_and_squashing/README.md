@@ -52,7 +52,7 @@
 
 ### Reference 
 
-[1] [The True Power of the Matrix (Transformations in Graphics) - Computerphile](https://youtu.be/vQ60rFwh2ig) / <br/>
+[1] [The True Power of the Matrix (Transformations in Graphics) - Computerphile](https://youtu.be/vQ60rFwh2ig) / [three basic linear transformation](https://youtu.be/vQ60rFwh2ig?t=93) = { scaling, translation, rotation }<br/>
 
 [2] [The Neural Network, A Visual Introduction](https://youtu.be/UOvPeC8WOt8) / <br/>
 

@@ -48,3 +48,13 @@
 
 ### 8. [The Neural Network, A Visual Introduction](https://youtu.be/UOvPeC8WOt8); 코드 따라 해보기 
 
+***
+
+### Reference 
+
+[1] [The True Power of the Matrix (Transformations in Graphics) - Computerphile](https://youtu.be/vQ60rFwh2ig) / <br/>
+
+[2] [The Neural Network, A Visual Introduction](https://youtu.be/UOvPeC8WOt8) / <br/>
+
+[3] [Essence of linear algebra](https://youtube.com/playlist?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab) / <br/>
+

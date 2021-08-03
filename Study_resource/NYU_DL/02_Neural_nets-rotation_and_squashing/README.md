@@ -32,8 +32,9 @@
 
 ※ ```squashing(= twisting)``` : changing things in a non-linear way
 
-
 ### 3. [Summary slide](https://youtu.be/0TdAmZUMj2k?t=827)
+
+* Neural nets 은 결국 벡터를 rotation → squashing →rotation → squashing →...  을 반복해서 질 좋은 feature vector를 찾는 것 
 
 ### 4. [Jupyter and PyTorch](https://youtu.be/0TdAmZUMj2k?t=846)
 
@@ -52,7 +53,7 @@
 
 ### Reference 
 
-[1] [The True Power of the Matrix (Transformations in Graphics) - Computerphile](https://youtu.be/vQ60rFwh2ig) / [three basic linear transformation](https://youtu.be/vQ60rFwh2ig?t=93) = { scaling, translation, rotation }<br/>
+[1] [The True Power of the Matrix (Transformations in Graphics) - Computerphile](https://youtu.be/vQ60rFwh2ig) / [three basic linear transformation](https://youtu.be/vQ60rFwh2ig?t=93) = { scaling, translation, rotation } & [필기](https://github.com/DoranLyong/DeepLearning-Study-Factory/blob/master/Study_resource/NYU_DL/02_Neural_nets-rotation_and_squashing/The%20true%20power%20of%20the%20matrix.pdf)<br/>
 
 [2] [The Neural Network, A Visual Introduction](https://youtu.be/UOvPeC8WOt8) / <br/>
 

@@ -59,3 +59,5 @@
 
 [3] [Essence of linear algebra](https://youtube.com/playlist?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab) / <br/>
 
+[4] [행렬과 선형변환, 공돌이의 수학정리노트](https://angeloyeo.github.io/2019/07/15/Matrix_as_Linear_Transformation.html) / Linear layer에서 어떤 변환이 일어나는 지(w/o activation function) 이미지화 하기<br/>
+

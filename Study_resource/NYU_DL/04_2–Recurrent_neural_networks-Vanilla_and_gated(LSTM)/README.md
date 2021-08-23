@@ -18,8 +18,8 @@
 ### 3. (today topic): [Recurrent neural nets](https://youtu.be/5KSGNomPJTE?t=662) - handling sequential data 
 
 * ```Vanilla``` and ```Recurrent``` NN 
-  * Combinatorial logic 
-  * Sequential logic (★★★) - memory 개념이 나옴 
+  * [Combinatorial logic](https://www.google.com/search?q=Combinatorial+logic&oq=Combinatorial+logic&aqs=chrome..69i57j0i10i30l4j0i30j0i10i30j0i10i512j0i10i30l2.213j0j1&sourceid=chrome&ie=UTF-8) 
+  * [Sequential logic](https://www.google.com/search?q=sequential+logic&sxsrf=ALeKk01qZ7JbEaUkMxNsYwOcoxq1RjoEIQ%3A1629733353750&ei=6cEjYa2TLcThwAPbhAo&oq=sequen+logic&gs_lcp=Cgdnd3Mtd2l6EAMYADIGCAAQBxAeMgYIABAHEB4yBggAEAcQHjIGCAAQBxAeMgYIABAHEB4yBggAEAcQHjIGCAAQBxAeMgYIABAHEB4yBggAEAcQHjIGCAAQBxAeOgcIABBHELADOgoIABBHELADEIsDSgUIPBIBMUoECEEYAVDa2AFYvd0BYI3lAWgBcAB4AIABdogB4AWSAQMyLjWYAQCgAQHIAQq4AQLAAQE&sclient=gws-wiz) (★★★) - memory 개념이 나옴 
 
 
 
@@ -45,6 +45,7 @@
 
 * (ex) 자연어 번역 (영어 → context → 한글)
 * [Algebraic structure of the embedding space](https://youtu.be/5KSGNomPJTE?t=1831)
+* vec 부분은 마치 latent code 를 만드는 부분 같음 (autoencoder 처럼 )
 
 
 
@@ -54,13 +55,39 @@
 
 
 
+### 8. [Training a recurrent network](https://youtu.be/5KSGNomPJTE?t=2312) - back propagation through time (BPTT)
+
+How do we train this recurrent neural network? ```Is the back propagation also recursion``` (*i.e.*, does the current value depend on the previous value)? <br/>
+
+Everything is just very plain back propagation. Then, ```how do we handle the fact that there is time dependencies```?
+
+* (sol) parameter sharing! 
+
+* [Plain feedforward network vs. RNN  구조 비교](https://youtu.be/5KSGNomPJTE?t=2360)
+  * (★★★) 적어서 한번더 정리하기 
+* accumulate gradients 
+
+
+
+### 9. [Training example](https://youtu.be/5KSGNomPJTE?t=2871) - language model 
+
+* Batch-ification (배치화)  - 문장 시퀀스로 배치 형태로(or *chunk*) 쪼갠다 
+  * Get batch
+* When to stop? ??? (뭔소리인지...)
+
+
+
+### 10. [Vanishing & exploding gradients](https://youtu.be/5KSGNomPJTE?t=3068) and gating mechanism - limitations of temporally deep nets 
+
+* gating mechanism .... 여기도 적어서 다시 정리하자... 이해 안 돼 :s 
+
 
 
 ***
 
 ### 코드 실습 - ([ref](https://github.com/Atcold/pytorch-Deep-Learning/blob/master/08-seq_classification.ipynb))
 
-* 
+* ㅜㅜ RNN 넘 어렵 
 
 
 

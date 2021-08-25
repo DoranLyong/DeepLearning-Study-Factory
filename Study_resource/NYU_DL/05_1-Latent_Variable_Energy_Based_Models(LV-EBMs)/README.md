@@ -24,23 +24,15 @@ Inference Un-supervised learning - Un-conditional case
 
 
 
-***
-
-### 코드 실습 - ([ref](https://github.com/Atcold/pytorch-Deep-Learning/blob/master/08-seq_classification.ipynb))
-
-* ㅜㅜ RNN 넘 어렵 
-
-
-
 
 
 ***
 
 ### Reference 
 
-[1] [NYU-DLSP20, website](https://atcold.github.io/pytorch-Deep-Learning/) / 
-
-[2] [Energy-Based Models](https://atcold.github.io/pytorch-Deep-Learning/en/week07/07-1/) /  
+[1] [NYU-DLSP20, website](https://atcold.github.io/pytorch-Deep-Learning/) /  <br/>
+[2] [Energy-Based Models](https://atcold.github.io/pytorch-Deep-Learning/en/week07/07-1/) /  <br/>
+[3] [Inference for latent variable Energy-Based Models (EBMs)](https://atcold.github.io/pytorch-Deep-Learning/en/week15/15-1/) / 
 
 
 
